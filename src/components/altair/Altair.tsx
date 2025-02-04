@@ -43,7 +43,7 @@ const declaration: FunctionDeclaration[] = [
       properties: {
         solution_text: {
           type: SchemaType.STRING,
-          description: "The formatted solution text to display",
+          description: "The formatted solution text to display. Use markdown formatting for better presentation.",
         },
       },
       required: ["solution_text"],
@@ -68,7 +68,20 @@ function AltairComponent() {
       systemInstruction: {
         parts: [
           {
-            text: 'You are my helpful assistant. For graphs, use the "render_altair" function. For math or other subject solutions, use the "render_solution" function to display formatted text. Always provide clear, step-by-step explanations. Your voice will narrate the solution while the text is displayed.',
+            text: `You are my helpful assistant. For graphs, use the "render_altair" function. For any text responses including explanations, stories, code, or other content, use the "render_solution" function to display formatted text. Always provide clear, well-formatted responses. Your voice will narrate the solution while the text is displayed. 
+
+When writing code, wrap it in markdown code blocks with the appropriate language specified. For example:
+\`\`\`python
+print("Hello World")
+\`\`\`
+
+Use markdown formatting to improve readability:
+- Use # for headers
+- Use ** for bold text
+- Use * for italic text
+- Use - or * for bullet points
+- Use > for blockquotes
+- Use horizontal rules (---) to separate sections`,
           },
         ],
       },
