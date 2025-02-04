@@ -162,16 +162,16 @@ body {
   }
 
   video.stream {
-    width: 80%;
-    max-width: 500px;
+    width: 100%;
+    max-width: 800px;
     height: auto;
     order: -1; /* Move to top */
     margin-bottom: 1rem;
     border-radius: 8px;
-    margin-left: 30%;
     
     @media (max-width: 768px) {
-      max-width: 95%;
+      max-width: 90%;
+      margin-left: auto;
       border-radius: 20px;
     }
   }
