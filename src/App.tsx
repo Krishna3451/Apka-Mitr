@@ -17,9 +17,13 @@
 import { useRef, useState } from "react";
 import "./App.scss";
 import { LiveAPIProvider } from "./contexts/LiveAPIContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import SidePanel from "./components/side-panel/SidePanel";
 import { Altair } from "./components/altair/Altair";
 import ControlTray from "./components/control-tray/ControlTray";
+import Login from "./components/auth/Login";
+import LogoutButton from "./components/auth/LogoutButton";
+import PhoneVerification from "./components/auth/PhoneVerification";
 import cn from "classnames";
 
 const API_KEY = process.env.REACT_APP_GEMINI_API_KEY as string;
@@ -30,42 +34,53 @@ if (typeof API_KEY !== "string") {
 const host = "generativelanguage.googleapis.com";
 const uri = `wss://${host}/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent`;
 
-function App() {
-  // this video reference is used for displaying the active stream, whether that is the webcam or screen capture
-  // feel free to style as you see fit
+function AppContent() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  // either the screen capture, the video or null, if null we hide it
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+  const { user, needsPhoneVerification } = useAuth();
+
+  if (!user) {
+    return <Login />;
+  }
+
+  if (needsPhoneVerification) {
+    return <PhoneVerification onVerificationComplete={() => window.location.reload()} />;
+  }
 
   return (
-    <div className="App">
-      <LiveAPIProvider url={uri} apiKey={API_KEY}>
-        <div className="streaming-console">
-          <SidePanel />
-          <main>
-            <div className="main-app-area">
-              {/* APP goes here */}
-              <Altair />
-              <video
-                className={cn("stream", {
-                  hidden: !videoRef.current || !videoStream,
-                })}
-                ref={videoRef}
-                autoPlay
-                playsInline
-              />
-            </div>
+    <LiveAPIProvider url={uri} apiKey={API_KEY}>
+      <div className="streaming-console">
+        <LogoutButton />
+        <SidePanel />
+        <main>
+          <div className="main-app-area">
+            <Altair />
+            <video
+              className={cn("stream", {
+                hidden: !videoRef.current || !videoStream,
+              })}
+              ref={videoRef}
+              autoPlay
+              playsInline
+            />
+          </div>
+          <ControlTray
+            videoRef={videoRef}
+            supportsVideo={true}
+            onVideoStreamChange={setVideoStream}
+          />
+        </main>
+      </div>
+    </LiveAPIProvider>
+  );
+}
 
-            <ControlTray
-              videoRef={videoRef}
-              supportsVideo={true}
-              onVideoStreamChange={setVideoStream}
-            >
-              {/* put your own buttons here */}
-            </ControlTray>
-          </main>
-        </div>
-      </LiveAPIProvider>
+function App() {
+  return (
+    <div className="App">
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </div>
   );
 }
